@@ -1,0 +1,14 @@
+
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+
+
+
+/* global.css */
+* {
+    padding: 0; /* Reset padding */
+    margin: 0;  /* Reset margin */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
