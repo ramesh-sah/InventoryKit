@@ -1,10 +1,14 @@
 from django.db import models
-from django.contrib.auth.models import User
-from django.utils import timezone
-from django.conf import settings
 
+from django.utils import timezone
+
+from account.models import User
+
+from django.utils.translation import gettext_lazy as _
 
 class Report(models.Model):
+    
+    
     REPORT_TYPE_CHOICES = [
         ('purchase', 'Purchase Report'),
         ('sales', 'Sales Report'),
@@ -14,16 +18,22 @@ class Report(models.Model):
         # Add more report types as needed
     ]
 
+    created_by = models.ForeignKey(
+        User,
+        related_name='report_created',
+        on_delete=models.CASCADE  # Delete customers if the user is deleted
+         ,null=True
+    )
     # Report metadata
     report_type = models.CharField(max_length=20, choices=REPORT_TYPE_CHOICES)
     start_date = models.DateField()  # Start date for the report period
     end_date = models.DateField()  # End date for the report period
     generated_at = models.DateTimeField(auto_now_add=True)  # Timestamp when the report was generated
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    total_amount = models.DecimalField(max_digits=12, decimal_places=2,
-                                       default=0.0)  # Total amount in the report (calculated)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2,default=0.0)  # Total amount in the report (calculated)
     notes = models.TextField(blank=True, null=True)  # Any additional notes or comments
     file = models.FileField(upload_to='reports/', blank=True, null=True)  # If a file (PDF, Excel, etc.) is generated
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True,null=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True, null=True)
 
     def __str__(self):
         return f"{self.get_report_type_display()} Report from {self.start_date} to {self.end_date}"

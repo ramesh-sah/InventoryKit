@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class IsSuperAdminOrAdmin(permissions.BasePermission):
+class IsSuperAdmin(permissions.BasePermission):
     """
     Custom permission to only allow access to super-admin and admin users.
     """
@@ -11,7 +11,7 @@ class IsSuperAdminOrAdmin(permissions.BasePermission):
         user = request.user
         if user.is_authenticated:
             # Check if the user has a role of 'super-admin' or 'admin'
-            if user.role in ['super-admin', 'admin']:
+            if user.role in ['super-admin']:
                 return True
         return False
 
@@ -39,7 +39,7 @@ class IsPurchaseStaff(permissions.BasePermission):
     def has_permission(self, request, view):
         # Check if the user is authenticated and has a role of 'purchase-staff'
         user = request.user
-        if user.is_authenticated and user.role == 'purchase-staff':
+        if user.is_authenticated and user.role == 'purchase-staff' and user.is_active=='True':
             return True
         return False
 
@@ -52,6 +52,6 @@ class IsSalesStaff(permissions.BasePermission):
     def has_permission(self, request, view):
         # Check if the user is authenticated and has a role of 'Sales Staff'
         user = request.user
-        if user.is_authenticated and user.role == 'Sales Staff':
+        if user.is_authenticated and user.role == 'sale-staff' and user.is_active=='True':
             return True
         return False

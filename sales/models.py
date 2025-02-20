@@ -1,6 +1,7 @@
 from django.db import models
+from account.models import User
 from purchase.models import PurchaseItem
-
+from django.utils.translation import gettext_lazy as _
 # Sale Model
 class Sale(models.Model):
     STATUS_CHOICES = [
@@ -12,7 +13,14 @@ class Sale(models.Model):
     sales_date = models.DateField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='quotation')
     reference_no = models.CharField(max_length=50, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True,null=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True, null=True)
+    created_by = models.ForeignKey(
+        User,
+        related_name='sale_created',
+        on_delete=models.CASCADE  # Delete customers if the user is deleted
+         ,null=True
+    )
 
     @property
     def subtotal(self):
@@ -33,6 +41,12 @@ class Sale(models.Model):
 # Sale Item Model
 class SaleItem(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name='items')
+    created_by = models.ForeignKey(
+        User,
+        related_name='sale_item_created',
+        on_delete=models.CASCADE  # Delete customers if the user is deleted
+         ,null=True
+    )
     purchase_item = models.ForeignKey(PurchaseItem, on_delete=models.CASCADE, null=True)
     quantity = models.PositiveIntegerField()
     price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
@@ -40,6 +54,8 @@ class SaleItem(models.Model):
     tax_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     tax_amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     total_price = models.DecimalField(max_digits=12, decimal_places=2)
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True,null=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True, null=True)
 
     def save(self, *args, **kwargs):
         # Calculate tax amount and total price

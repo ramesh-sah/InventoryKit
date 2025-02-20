@@ -1,13 +1,17 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserPasswordResetSerializer, \
+
+from account.models import StaffCounts, User
+from .serializers import AdminStaffCountSerializer, AdminViewPurchaseStaff, AdminViewSaleStaff, SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserPasswordResetSerializer, \
     UserRegistrationSerializer, UserLoginSerializer, UserProfileSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from inventorykit.permissions import IsSuperAdminOrAdmin, IsPurchaseStaff, IsSalesStaff
+from inventorykit.permissions import IsAdmin, IsSuperAdmin, IsPurchaseStaff, IsSalesStaff
+from rest_framework.viewsets import ModelViewSet
+from .signals import *
 
 
 def get_tokens_for_user(user):
@@ -21,7 +25,8 @@ def get_tokens_for_user(user):
 
 class UserRegisterationView(APIView):
     # renderer_classes = [UserRenderer]
-    permission_classes = [IsSuperAdminOrAdmin]
+    # permission_classes = [IsSuperAdmin,IsPurchaseStaff,IsSalesStaff,IsAdmin]
+    
 
     def post(self, request, *args, **kwargs):
         serializer = UserRegistrationSerializer(data=request.data)
@@ -35,7 +40,7 @@ class UserRegisterationView(APIView):
 
 class UserLoginView(APIView):
     renderer_classes = [UserRenderer]
-
+  
     def post(self, request, *args, **kwargs):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -108,3 +113,34 @@ class UserLogout(APIView):
             return Response({"msg": "Logged out successfully"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"msg": "token is invalid or already blacklisted"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+class AdminPurchaseStaffView(ModelViewSet):
+
+    serializer_class = AdminViewPurchaseStaff
+    # permission_classes = [IsSuperAdminOrAdmin]  # Uncomment to enforce permissions
+
+    def get_queryset(self):
+        user = self.request.user  # Get the currently authenticated user
+        # Return users created by the authenticated user with the role 'purchase-staff'
+        return User.objects.filter(created_by=user, role='purchase-staff')
+    
+    
+    
+class AdminSaleStaffView(ModelViewSet):
+
+    serializer_class = AdminViewSaleStaff
+    # permission_classes = [IsSuperAdminOrAdmin]  # Uncomment to enforce permissions
+
+    def get_queryset(self):
+        user = self.request.user  # Get the currently authenticated user
+        # Return users created by the authenticated user with the role 'purchase-staff'
+        return User.objects.filter(created_by=user, role='sales-staff')
+    
+class AdminStaffCountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        obj=StaffCounts.objects.get(user=request.user)
+        serializers=AdminStaffCountSerializer(obj)
+        return Response(serializers.data,status=status.HTTP_200_OK)

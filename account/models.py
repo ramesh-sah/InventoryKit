@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.utils.translation import gettext_lazy as _
 from .manager import UserManager
-
+from phonenumber_field.modelfields import PhoneNumberField
 
 # Create your models here.
 
@@ -20,7 +20,7 @@ class User(AbstractBaseUser):
         ],
         default='sales-staff',
     )
-    mobile_phone = models.CharField(_('mobile phone'), max_length=20, blank=True, null=True)
+    mobile_phone =  PhoneNumberField(region='NP')  # Optional: Specify default region
     address_line_1 = models.CharField(_('address line 1'), max_length=255, blank=True, null=True)
     address_line_2 = models.CharField(_('address line 2'), max_length=255, blank=True, null=True)
     city = models.CharField(_('city'), max_length=255, blank=True, null=True)
@@ -51,3 +51,10 @@ class User(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return self.is_superuser
+    
+    
+class StaffCounts(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="staff_counts")
+    purchase_staff_count = models.IntegerField(default=0)
+    sales_staff_count = models.IntegerField(default=0)
+

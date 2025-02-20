@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework_simplejwt.token_blacklist',
     'django_filters',
+    "phonenumber_field",
     
     
     #apps created
@@ -59,6 +60,7 @@ INSTALLED_APPS = [
     'reports',
     'sales',
     'suppliers',
+    'frontend',
 
     
     
@@ -80,7 +82,7 @@ ROOT_URLCONF = 'inventorykit.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR,'./inventory-kit-fontend/dist/'],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -141,11 +143,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/assets/'
-STATICFILES_DIRS = [
-    BASE_DIR , "inventory-kit-fontend/dist/assets", # Your static files
-]
+STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+
+MEDIA_URL = '/media/'  # URL to access media files
+MEDIA_ROOT = BASE_DIR / "media"  # Path where media files will be stored
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
