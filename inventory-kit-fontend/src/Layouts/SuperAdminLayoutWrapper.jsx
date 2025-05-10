@@ -20,11 +20,12 @@ export default function SalesStaffLayoutWrapper(props) {
       navigation={NAVIGATION}
       router={router}
       theme={Theme}
+      
     >
 
       <DashboardLayout>
         <PageContainer>
-          <Grid container spacing={1}>
+          <Grid container spacing={1} >
 
             <Outlet />
           </Grid>

@@ -1,15 +1,32 @@
 from django.db import models
 
+from account.models import User
+from django.utils.translation import gettext_lazy as _
 
 class Category(models.Model):
+    
     name = models.CharField(max_length=100, unique=True)  # Category name (e.g., Electronics, Clothing, etc.)
     description = models.TextField(blank=True, null=True)  # Optional description for the category
+    created_by = models.ForeignKey(
+        User,
+        related_name='itemCategory_created',
+        on_delete=models.CASCADE  # Delete customers if the user is deleted
+        ,null=True
+    )
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True,null=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True,null=True)
 
     def __str__(self):
         return self.name
 
 
 class Item(models.Model):
+    created_by = models.ForeignKey(
+        User,
+        related_name='item_created',
+        on_delete=models.CASCADE  # Delete customers if the user is deleted
+         ,null=True
+    )
     item_code = models.CharField(max_length=50, unique=True)  # Unique code for the item
     name = models.CharField(max_length=255)  # Name of the item
     brand = models.CharField(max_length=100, blank=True, null=True)  # Brand of the item
@@ -24,6 +41,10 @@ class Item(models.Model):
     )
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)  # Discount on the item
     tax_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)  # Tax percentage
+    
+    
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True,null=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True,null=True)
 
     def __str__(self):
         return self.name

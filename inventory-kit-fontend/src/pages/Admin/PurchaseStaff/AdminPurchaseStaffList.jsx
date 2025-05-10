@@ -1,367 +1,474 @@
 
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { alpha } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import TableSortLabel from '@mui/material/TableSortLabel';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+
+import React, { useState, useEffect } from 'react';
+import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
-import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import { visuallyHidden } from '@mui/utils';
 
-function createData(id, name, calories, fat, carbs, protein) {
-  return {
-    id,
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-  };
-}
+import {
+  Button,
+  Menu,
+  MenuItem,
+  Snackbar,
+  Dialog,
+  Grid,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField, Container
+} from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import TouchAppIcon from '@mui/icons-material/TouchApp';
 
-const rows = [
-  createData(1, 'Cupcake', 305, 3.7, 67, 4.3),
-  createData(2, 'Donut', 452, 25.0, 51, 4.9),
-  createData(3, 'Eclair', 262, 16.0, 24, 6.0),
-  createData(4, 'Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData(5, 'Gingerbread', 356, 16.0, 49, 3.9),
-  createData(6, 'Honeycomb', 408, 3.2, 87, 6.5),
-  createData(7, 'Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData(8, 'Jelly Bean', 375, 0.0, 94, 0.0),
-  createData(9, 'KitKat', 518, 26.0, 65, 7.0),
-  createData(10, 'Lollipop', 392, 0.2, 98, 0.0),
-  createData(11, 'Marshmallow', 318, 0, 81, 2.0),
-  createData(12, 'Nougat', 360, 19.0, 9, 37.0),
-  createData(13, 'Oreo', 437, 18.0, 63, 4.0),
-];
+import { ListItemIcon, ListItemText } from '@mui/material';
+import { Edit, Delete } from '@mui/icons-material';
+import { Box } from '@mui/material';
+import AdminPurchaseStaffListService from './../../../services/AdminServices/AdminPurchaseStaffListService';
+import AdminUpdatePurchaseStaffService from './../../../services/AdminServices/AdminUpdatePurchaseStaffService';
+import AdminDeletePurchaseStaffService from '../../../services/AdminServices/AdminDeletePurchaseStaffService';
 
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
 
-function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-const headCells = [
-  {
-    id: 'name',
-    numeric: false,
-    disablePadding: true,
-    label: 'Dessert (100g serving)',
-  },
-  {
-    id: 'calories',
-    numeric: true,
-    disablePadding: false,
-    label: 'Calories',
-  },
-  {
-    id: 'fat',
-    numeric: true,
-    disablePadding: false,
-    label: 'Fat (g)',
-  },
-  {
-    id: 'carbs',
-    numeric: true,
-    disablePadding: false,
-    label: 'Carbs (g)',
-  },
-  {
-    id: 'protein',
-    numeric: true,
-    disablePadding: false,
-    label: 'Protein (g)',
-  },
-];
-
-function EnhancedTableHead(props) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
-    props;
-  const createSortHandler = (property) => (event) => {
-    onRequestSort(event, property);
-  };
-
-  return (
-    <TableHead >
-      <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              'aria-label': 'select all desserts',
-            }}
-          />
-        </TableCell>
-        {headCells.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.numeric ? 'right' : 'left'}
-            padding={headCell.disablePadding ? 'none' : 'normal'}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
-  );
-}
-
-EnhancedTableHead.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-  onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
-  order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-  orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
-};
-
-function EnhancedTableToolbar(props) {
-  const { numSelected } = props;
-  return (
-    <Toolbar
-      sx={[
-        {
-          pl: { sm: 2 },
-          pr: { xs: 1, sm: 1 },
-        },
-        numSelected > 0 && {
-          bgcolor: (theme) =>
-            alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
-        },
-      ]}
-    >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          Nutrition
-        </Typography>
-      )}
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
-    </Toolbar>
-  );
-}
-
-EnhancedTableToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-};
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 export default function AdminPurchaseStaffList() {
-  const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('calories');
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [selectedPurchaseStaff, setSelectedPurchaseStaff] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    id: '', // Assign unique IDs for DataGrid
+    name: '',
+    email: '',
+    mobile_phone: '',
+    address1: '',
+    address2: '',
+    city: '',
+    state: '',
+    zip_code: '',
+    country: '',
+    date_of_birth: '',
 
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const purchaseStaff = await AdminPurchaseStaffListService.fetchPurchaseStaff();
+        const formattedData = purchaseStaff.map((purchaseStaff) => ({
+          id: purchaseStaff.id || 'N/A', // Assign unique IDs for DataGrid
+          name: purchaseStaff.name || 'N/A',
+          email: purchaseStaff.email || 'N/A',
+          mobile_phone: purchaseStaff.mobile_phone || 'N/A',
+          address1: purchaseStaff.address_line_1 || 'N/A',
+          address2: purchaseStaff.address_line_2 || 'N/A',
+          city: purchaseStaff.city || 'N/A',
+          state: purchaseStaff.state || 'N/A',
+          zip_code: purchaseStaff.zip_code || 'N/A',
+          country: purchaseStaff.country || 'N/A',
+          date_of_birth: purchaseStaff.date_of_birth || "N/A",
+          is_active: purchaseStaff.is_active || "N/A",
+          created_at: purchaseStaff.created_at || 'N/A',
+          updated_at: purchaseStaff.updated_at || 'N/A'
+
+        }));
+        setRows(formattedData);
+      } catch (error) {
+        console.error('Failed to fetch customers:', error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+  const handleMenuClick = (event, purchaseStaff) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedPurchaseStaff(purchaseStaff);
   };
 
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelected = rows.map((n) => n.id);
-      setSelected(newSelected);
-      return;
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedPurchaseStaff(null);
+  };
+
+  const handleUpdateOpen = () => {
+    if (selectedPurchaseStaff) {
+      setFormData({
+        id: selectedPurchaseStaff.id,
+        name: selectedPurchaseStaff.name,
+        email: selectedPurchaseStaff.email,
+        mobile_phone: selectedPurchaseStaff.mobile_phone,
+        address1: selectedPurchaseStaff.address1,
+        address2: selectedPurchaseStaff.address2,
+        city: selectedPurchaseStaff.city,
+        state: selectedPurchaseStaff.state,
+        zip_code: selectedPurchaseStaff.zip_code,
+        country: selectedPurchaseStaff.country,
+        date_of_birth: selectedPurchaseStaff.date_of_birth,
+
+      });
+      setOpenDialog(true);
     }
-    setSelected([]);
+    handleMenuClose();
   };
 
-  const handleClick = (event, id) => {
-    const selectedIndex = selected.indexOf(id);
-    let newSelected = [];
+  const handleUpdateClose = () => {
+    setOpenDialog(false);
+    setSelectedPurchaseStaff(null);
+  };
 
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
-      );
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleFormSubmit = async () => {
+    console.log('Updating customer:', formData);
+    await AdminUpdatePurchaseStaffService.AdminUpdatePurchaseStaff(formData, formData.id);
+
+
+    setSnackbarMessage(`Updated customer: ${formData.name}`);
+    setOpenSnackbar(true);
+    handleUpdateClose();
+  };
+
+  const handleDelete = async () => {
+    if (selectedPurchaseStaff) {
+      console.log('Deleting customer with ID:', selectedPurchaseStaff.id);
+
+
+      await AdminDeletePurchaseStaffService.AdminDeletePurchaseStaff(selectedPurchaseStaff.id); // Call the service
+
+
+      setSnackbarMessage(`Deleted customer with ID: ${selectedPurchaseStaff.id}`);
+      setOpenSnackbar(true);
+      setRows((prevRows) => prevRows.filter((row) => row.id !== selectedPurchaseStaff.id));
     }
-    setSelected(newSelected);
+    handleMenuClose();
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  const exportToCSV = () => {
+    const csvData = rows.map(({ id, ...rest }) => rest);
+    const csvContent = [
+      Object.keys(csvData[0]).join(','),
+      ...csvData.map(row => Object.values(row).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, 'customers.csv');
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Customers');
+    XLSX.writeFile(workbook, 'customers.xlsx');
   };
 
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
+  const exportToJSON = () => {
+    const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' });
+    saveAs(blob, 'customers.json');
   };
 
-  // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const columns = [
 
-  const visibleRows = React.useMemo(
-    () =>
-      [...rows]
-        .sort(getComparator(order, orderBy))
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rowsPerPage],
-  );
+    { field: 'id', headerName: 'ID', width: 70 },
+
+    { field: 'name', headerName: 'Name', width: 160 },
+    { field: 'email', headerName: 'Email', width: 200 },
+    { field: 'mobile_phone', headerName: 'Phone Number', width: 160 },
+    { field: 'address1', headerName: 'Address Line 1', width: 200 },
+    { field: 'address2', headerName: 'Address Line 2', width: 200 },
+    { field: 'city', headerName: 'City', width: 130 },
+    { field: 'state', headerName: 'State', width: 130 },
+    { field: 'zip_code', headerName: 'Zip Code', width: 100 },
+    { field: 'country', headerName: 'Country', width: 130 },
+    { field: 'date_of_birth', headerName: 'Date of Birth', width: 150 },
+    { field: 'is_active', headerName: 'Is Active', width: 100 },
+    { field: 'created_at', headerName: 'Created At', width: 180 },
+    { field: 'updated_at', headerName: 'Updated At', width: 180 },
+
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 200, // Increased width for actions
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={(e) => handleMenuClick(e, params.row)}
+          startIcon={<TouchAppIcon />}
+        >
+          Actions
+        </Button>
+      ),
+    },
+  ];
+
+  const paginationModel = { page: 0, pageSize: 5 };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }} >
-        <EnhancedTableToolbar numSelected={selected.length} />
-        <TableContainer>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size={dense ? 'small' : 'medium'}
-          >
-            <EnhancedTableHead
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-              
-            />
-            <TableBody>
-              {visibleRows.map((row, index) => {
-                const isItemSelected = selected.includes(row.id);
-                const labelId = `enhanced-table-checkbox-${index}`;
+    <Paper sx={{ height: 400, width: '100%' }}>
+      <Container maxWidth="lg" sx={{ margin: '20px auto' }}>
+        <Grid container spacing={2} justifyContent="left">
+          <Grid item xs={4} sm="auto">
+            <Button
+              variant="contained"
+              color="success"
+              onClick={exportToCSV}
+              sx={{ width: '100%' }}
+              startIcon={<CloudDownloadIcon />}
+            >
+              Export CSV
+            </Button>
+          </Grid>
+          <Grid item xs={4} sm="auto">
+            <Button
+              variant="contained"
+              color="success"
+              onClick={exportToExcel}
+              sx={{ width: '100%' }}
+              startIcon={<CloudDownloadIcon />}
+            >
+              Export Excel
+            </Button>
+          </Grid>
+          <Grid item xs={4} sm="auto">
+            <Button
+              variant="contained"
+              color="success"
+              onClick={exportToJSON}
+              sx={{ width: '100%' }}
+              startIcon={<CloudDownloadIcon />}
 
-                return (
-                  <TableRow
-                    hover
-                    onClick={(event) => handleClick(event, row.id)}
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    key={row.id}
-                    selected={isItemSelected}
-                    sx={{ cursor: 'pointer' }}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                          'aria-labelledby': labelId,
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                    >
-                      {row.name}
-                    </TableCell>
-                    <TableCell align="right">{row.calories}</TableCell>
-                    <TableCell align="right">{row.fat}</TableCell>
-                    <TableCell align="right">{row.carbs}</TableCell>
-                    <TableCell align="right">{row.protein}</TableCell>
-                  </TableRow>
-                );
-              })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: (dense ? 33 : 53) * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
+            >
+              Export JSON
+
+            </Button>
+          </Grid>
+        </Grid>
+      </Container>
+
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        loading={loading}
+        initialState={{ pagination: { paginationModel } }}
+        pageSizeOptions={[5, 10, 20]}
+        checkboxSelection
+        sx={{ border: 0 }}
       />
-    </Box>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        sx={{
+          '& .MuiPaper-root': {
+            borderRadius: 2,
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+            padding: 0,
+          },
+        }}
+      >
+        <MenuItem onClick={handleUpdateOpen}>
+          <ListItemIcon>
+            <Edit fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Update" />
+        </MenuItem>
+
+        <MenuItem onClick={handleDelete}>
+          <ListItemIcon>
+            <Delete fontSize="small" color="error" />
+          </ListItemIcon>
+          <ListItemText primary="Delete" />
+        </MenuItem>
+      </Menu>
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="info" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
+
+
+
+      <Dialog
+        open={openDialog}
+        onClose={handleUpdateClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            padding: 2,
+
+          },
+        }}
+      >
+        <DialogTitle sx={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem', color: '#1976d2' }}>
+          Update Customer
+        </DialogTitle>
+
+        <DialogContent sx={{ paddingTop: 2 }}>
+          <Box component="form" noValidate autoComplete="off">
+
+
+
+            <TextField
+              margin="dense"
+              label="Enter  Name"
+              type="text"
+              fullWidth
+              name="name"
+              value={formData.name}
+              onChange={handleFormChange}
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="Email"
+              type="email"
+              fullWidth
+              name="email"
+              value={formData.email}
+              onChange={handleFormChange}
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="Phone Number"
+              type="text"
+              fullWidth
+              name="mobile_phone"
+              value={formData.mobile_phone}
+              onChange={handleFormChange}
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="Address Line 1"
+              type="text"
+              fullWidth
+              name="address1"
+              value={formData.address1}
+              onChange={handleFormChange}
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="Address Line 2"
+              type="text"
+              fullWidth
+              name="address2"
+              value={formData.address2}
+              onChange={handleFormChange}
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="City"
+              type="text"
+              fullWidth
+              name="city"
+              value={formData.city}
+              onChange={handleFormChange}
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="State"
+              type="text"
+              fullWidth
+              name="state"
+              value={formData.state}
+              onChange={handleFormChange}
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="Zip Code"
+              type="text"
+              fullWidth
+              name="zip_code"
+              value={formData.zip_code}
+              onChange={handleFormChange}
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="Country"
+              type="text"
+              fullWidth
+              name="country"
+              value={formData.country}
+              onChange={handleFormChange}
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Date of Birth"
+              name="date_of_birth"
+              type="date"
+              value={formData.date_of_birth}
+              onChange={handleFormChange}
+              InputLabelProps={{ shrink: true }}
+              required
+            />
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: 'center', paddingBottom: 2 }}>
+          <Button
+            onClick={handleUpdateClose}
+            variant="outlined"
+            color="error"
+            sx={{
+              minWidth: '120px',
+              padding: '8px 16px',
+              borderRadius: 2,
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleFormSubmit}
+            variant="contained"
+            color="primary"
+            sx={{
+              minWidth: '120px',
+              padding: '8px 16px',
+              borderRadius: 2,
+              marginLeft: 2,
+            }}
+          >
+            Update
+          </Button>
+        </DialogActions>
+      </Dialog>;
+
+    </Paper>
   );
 }
+

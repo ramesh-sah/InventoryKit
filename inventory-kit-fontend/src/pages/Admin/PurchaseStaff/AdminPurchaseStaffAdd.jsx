@@ -47,13 +47,12 @@ const AdminPurchaseStaffAdd = () => {
     date_of_birth: '',
     password: '',
     password2: '',
-    profile_picture: null,
+    profile_picture: '',
   });
 
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
-
   const navigate = useNavigate();
 
   // Handle input changes
@@ -70,24 +69,16 @@ const AdminPurchaseStaffAdd = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate passwords
     if (formData.password !== formData.password2) {
       setError('Passwords do not match.');
       return;
     }
-    setError(null);
+    setError(null); // Clear errors
 
-    // Prepare data for API call
-    const formDataToSubmit = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      formDataToSubmit.append(key, value);
-    });
+   
 
     try {
-      // Call the API to add the purchase staff
-      await AdminPurchaseStaffAddService.AdminPurchaseStaffAdd(formDataToSubmit);
-
+      await AdminPurchaseStaffAddService.AdminPurchaseStaffAdd(formData);
       alert('Purchase staff added successfully!');
       navigate('/admin-purchase-staff/purchase-staff-list');
 
@@ -106,7 +97,7 @@ const AdminPurchaseStaffAdd = () => {
         date_of_birth: '',
         password: '',
         password2: '',
-        profile_picture: null,
+        profile_picture: '',
       });
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to add purchase staff. Please try again.');
@@ -125,22 +116,9 @@ const AdminPurchaseStaffAdd = () => {
       )}
       <form onSubmit={handleSubmit} encType="multipart/form-data" style={{ width: '100%' }}>
         <Grid container spacing={2}>
-          <Grid
-            item
-            xs={12}
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
+          <Grid item xs={12} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <ProfilePicture
-              src={
-                formData.profile_picture
-                  ? URL.createObjectURL(formData.profile_picture)
-                  : ''
-              }
+              src={formData.profile_picture ? URL.createObjectURL(formData.profile_picture) : ''}
             />
             <Button variant="contained" component="label" sx={{ mt: 2 }}>
               Upload Profile Picture
@@ -186,6 +164,7 @@ const AdminPurchaseStaffAdd = () => {
               required
             >
               <MenuItem value="purchase-staff">Purchase Staff</MenuItem>
+              {/* Add other roles if needed */}
             </TextField>
           </Grid>
 
@@ -196,6 +175,7 @@ const AdminPurchaseStaffAdd = () => {
               name="mobile_phone"
               value={formData.mobile_phone}
               onChange={handleInputChange}
+              placeholder="+977862981898"
             />
           </Grid>
 
@@ -208,6 +188,72 @@ const AdminPurchaseStaffAdd = () => {
               value={formData.date_of_birth}
               onChange={handleInputChange}
               InputLabelProps={{ shrink: true }}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Address Line 1"
+              name="address_line_1"
+              value={formData.address_line_1}
+              onChange={handleInputChange}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Address Line 2"
+              name="address_line_2"
+              value={formData.address_line_2}
+              onChange={handleInputChange}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="City"
+              name="city"
+              value={formData.city}
+              onChange={handleInputChange}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="State"
+              name="state"
+              value={formData.state}
+              onChange={handleInputChange}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Zip Code"
+              name="zip_code"
+              value={formData.zip_code}
+              onChange={handleInputChange}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Country"
+              name="country"
+              value={formData.country}
+              onChange={handleInputChange}
+              required
             />
           </Grid>
 
@@ -222,10 +268,7 @@ const AdminPurchaseStaffAdd = () => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
                       {showPassword ? <FaEye /> : <FaEyeSlash />}
                     </IconButton>
                   </InputAdornment>
@@ -246,10 +289,7 @@ const AdminPurchaseStaffAdd = () => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword2(!showPassword2)}
-                      edge="end"
-                    >
+                    <IconButton onClick={() => setShowPassword2(!showPassword2)} edge="end">
                       {showPassword2 ? <FaEye /> : <FaEyeSlash />}
                     </IconButton>
                   </InputAdornment>

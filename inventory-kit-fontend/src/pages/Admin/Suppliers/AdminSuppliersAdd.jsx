@@ -1,5 +1,3 @@
-
-
 // Import necessary dependencies
 import React, { useState } from 'react';
 import {
@@ -11,6 +9,8 @@ import {
   MenuItem,
 } from '@mui/material';
 import { styled } from '@mui/system';
+import AdminSppliersAddService from './../../../services/AdminServices/AdminSuppliersAddService';
+
 
 // Styled container for the form
 const FormContainer = styled(Box)(({ theme }) => ({
@@ -48,34 +48,45 @@ const AdminSuppliersAdd = () => {
   });
 
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false); // State for success message
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Basic validation
     if (!formData.name || !formData.country || !formData.state || !formData.city) {
       setError('Please fill all required fields.');
       return;
     }
-    setError(null);
-    console.log('Supplier data submitted:', formData);
-    setFormData({
-      name: '',
-      phone_number: '',
-      email: '',
-      country: '',
-      state: '',
-      city: '',
-      postal_code: '',
-      address: '',
-      tax_no: '',
-      gst_no: '',
-      status: '',
-    });
+
+    try {
+      await AdminSppliersAddService.AdminSuppliersAdd(formData); // Call the service
+      setSuccess(true); // Display success notification
+      setError(null);
+
+      console.log('Supplier data submitted:', formData);
+      // Reset form
+      setFormData({
+        name: '',
+        phone_number: '',
+        email: '',
+        country: '',
+        state: '',
+        city: '',
+        postal_code: '',
+        address: '',
+        tax_no: '',
+        gst_no: '',
+        status: '',
+      });
+    } catch (err) {
+      setError('Failed to add supplier. Please try again.'); // Handle service error
+      console.error(err);
+    }
   };
 
   return (
@@ -86,6 +97,11 @@ const AdminSuppliersAdd = () => {
       {error && (
         <Typography variant="body2" color="error" gutterBottom>
           {error}
+        </Typography>
+      )}
+      {success && (
+        <Typography variant="body2" color="success.main" gutterBottom>
+          Supplier added successfully!
         </Typography>
       )}
       <form onSubmit={handleSubmit}>

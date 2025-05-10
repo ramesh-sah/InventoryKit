@@ -1,4 +1,3 @@
-
 import {
   Box,
   Grid,
@@ -17,12 +16,11 @@ import SalesStaffAddCustomersService from './../../../services/salesStaffService
 const FormContainer = styled(Box)(({ theme }) => ({
   margin: 'auto',
   padding: theme.spacing(4),
-  backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
   boxShadow: theme.shadows[5],
 }));
 
-const SalesStaffCustomersAdd = () => {
+const AdminCustomersAdd = () => {
   const [formData, setFormData] = useState({
     name: '',
     phone_number: '',
@@ -30,8 +28,14 @@ const SalesStaffCustomersAdd = () => {
     shipping_address: '',
   });
 
-  const [error, setError] = useState(null);
+  const [error, setError] = useState({});
   const [success, setSuccess] = useState(false);
+
+  // Validate Nepalese phone numbers
+  const validatePhoneNumber = (phone) => {
+    const nepaliPhoneRegex = /^\+977(98|97)\d{8}$/;
+    return nepaliPhoneRegex.test(phone);
+  };
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -44,17 +48,24 @@ const SalesStaffCustomersAdd = () => {
     e.preventDefault();
 
     // Basic validation
-    if (!formData.name || !formData.phone_number || !formData.email || !formData.shipping_address) {
-      setError('All fields are required.');
-      return;
-    }
+    const newErrors = {};
+    if (!formData.name) newErrors.name = 'Name is required.';
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = 'Valid email is required.';
+    if (!validatePhoneNumber(formData.phone_number))
+      newErrors.phone_number = 'Enter a valid Nepalese phone number (e.g., +9779812345678).';
+    if (!formData.shipping_address) newErrors.shipping_address = 'Shipping address is required.';
+
+    setError(newErrors);
+
+    // Stop submission if there are errors
+    if (Object.keys(newErrors).length > 0) return;
 
     try {
-      setError(null); // Clear errors
-      await SalesStaffAddCustomersService.SalesStaffAddCustomers(formData); // Call the service
-      setSuccess(true); // Display success notification
+      await SalesStaffAddCustomersService.SalesStaffAddCustomers(formData);
+      setSuccess(true);
 
-      // Reset form fields after submission
+      // Reset form
       setFormData({
         name: '',
         phone_number: '',
@@ -62,7 +73,7 @@ const SalesStaffCustomersAdd = () => {
         shipping_address: '',
       });
     } catch (err) {
-      setError(err.message); // Show the error message
+      setError({ submit: err.message });
     }
   };
 
@@ -71,14 +82,14 @@ const SalesStaffCustomersAdd = () => {
       <Typography variant="h4" gutterBottom sx={{ textAlign: 'center', fontWeight: 'bold' }}>
         Add Customer
       </Typography>
-      {error && (
+      {error.submit && (
         <Alert severity="error" sx={{ marginBottom: 2 }}>
-          {error}
+          {error.submit}
         </Alert>
       )}
       <form onSubmit={handleSubmit}>
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid item lg={4} xs={12} sm={12} md={6}>
             <TextField
               fullWidth
               label="Name"
@@ -87,22 +98,25 @@ const SalesStaffCustomersAdd = () => {
               onChange={handleInputChange}
               required
               variant="outlined"
-              helperText="Enter the customer's full name"
+              error={!!error.name}
+              helperText={error.name}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item lg={4} xs={12} sm={12} md={6}>
             <TextField
               fullWidth
               label="Phone Number"
               name="phone_number"
+              placeholder="+9779812345678"
               value={formData.phone_number}
               onChange={handleInputChange}
               required
               variant="outlined"
-              helperText="Enter a valid phone number"
+              error={!!error.phone_number}
+              helperText={error.phone_number}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item lg={4} xs={12} sm={12} md={6}>
             <TextField
               fullWidth
               label="Email"
@@ -112,10 +126,11 @@ const SalesStaffCustomersAdd = () => {
               onChange={handleInputChange}
               required
               variant="outlined"
-              helperText="Enter a valid email address"
+              error={!!error.email}
+              helperText={error.email}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item lg={12} xs={12} sm={12} md={12}>
             <TextField
               fullWidth
               label="Shipping Address"
@@ -126,7 +141,8 @@ const SalesStaffCustomersAdd = () => {
               variant="outlined"
               multiline
               rows={3}
-              helperText="Enter the full shipping address"
+              error={!!error.shipping_address}
+              helperText={error.shipping_address}
             />
           </Grid>
           <Grid item xs={12}>
@@ -157,4 +173,4 @@ const SalesStaffCustomersAdd = () => {
   );
 };
 
-export default SalesStaffCustomersAdd;
+export default AdminCustomersAdd;

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework_simplejwt.token_blacklist',
     'django_filters',
+    "phonenumber_field",
     
     
     #apps created
@@ -146,6 +147,9 @@ STATICFILES_DIRS = [
     BASE_DIR , "inventory-kit-fontend/dist/assets", # Your static files
 ]
 
+
+MEDIA_URL = '/media/'  # URL to access media files
+MEDIA_ROOT = BASE_DIR / "media"  # Path where media files will be stored
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

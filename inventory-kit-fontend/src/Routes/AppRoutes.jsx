@@ -62,6 +62,7 @@ import SuperAdminPurchaseStaffList from './../pages/SuperAdmin/PurchaseStaff/Sup
 import SuperAdminSalesStaffList from './../pages/SuperAdmin/SalesStaff/SuperAdminSalesStaffList';
 import SalesStaffSalesReport from './../pages/SalesStaff/Reports/SalesStaffSalesReport';
 import SalesStaffSalesPaymentReport from './../pages/SalesStaff/Reports/SalesStaffSalesPaymentReport';
+import AdminSalesList from './../pages/Admin/Sales/AdminSalesList';
 
 
 /**
@@ -110,6 +111,10 @@ const AppRoutes = () => {
                     <Route path="/admin-expenses/expenses-list" element={<AdminExpensesList />} />
                     <Route path="/admin-expenses/expenses-category" element={<AdminExpenseCategory />} />
                     <Route path="/admin-expenses/expenses-category-list" element={<AdminExpenseCategoryList />} />
+
+
+                    <Route path="/admin-sales/new-sales" element={<AdminSalesAdd />} />
+                    <Route path="/admin-sales/sales-list" element={<AdminSalesList />} />
                     <Route path="/admin-items/new-item" element={<AdminItemAdd />} />
                     <Route path="/admin-items/item-list" element={<AdminItemList />} />
                     <Route path="/admin-purchase/new-purchase" element={<AdminPurchaseAdd />} />

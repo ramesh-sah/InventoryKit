@@ -1,9 +1,15 @@
 from rest_framework.routers import DefaultRouter
-from .views import AdminSaleView, AdminItemSaleView
+
+from sales.views import AdminSaleItemView, AdminSaleView, SaleStaffSaleItemView, SaleStaffSaleView
+
 
 router = DefaultRouter()
 
-router.register(r'admin-sale-view', AdminSaleView, basename='admin-sale-view')
-router.register(r'admin-item-sale-view', AdminItemSaleView, basename='admin-item-sale-view')
+router.register(r'admin-sale', AdminSaleView, basename='admin-sale')
+router.register(r'admin-sale-item', AdminSaleItemView, basename='admin-sale-item')
+
+
+router.register(r'sale-staff-sale', SaleStaffSaleView, basename='sale-staff-sale')
+router.register(r'sale-staff-sale-item', SaleStaffSaleItemView, basename='sale-staff-sale-item')
 
 urlpatterns = router.urls

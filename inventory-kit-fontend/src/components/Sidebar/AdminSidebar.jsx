@@ -153,23 +153,26 @@ const NAVIGATION = [
       },
     ],
   },
+
+
   {
-    segment: 'admin-purchase-staff',
-    title: 'Purchase Staff',
+    segment: 'admin-sales',
+    title: 'Sales',
     icon: <ShoppingCartIcon />, // Represents purchases or shopping
     children: [
       {
-        segment: 'new-purchase-staff',
-        title: 'New Purchase Staff',
+        segment: 'new-sales',
+        title: 'New Sales',
         icon: <AddShoppingCartIcon />, // Indicates adding a new purchase
       },
       {
-        segment: 'purchase-staff-list',
-        title: 'Purchase Staff List',
+        segment: 'sales-list',
+        title: 'Sales List',
         icon: <ListAltIcon />, // Represents a list of items
       },
     ],
   },
+  
   {
     segment: 'admin-reports',
     title: 'Reports',

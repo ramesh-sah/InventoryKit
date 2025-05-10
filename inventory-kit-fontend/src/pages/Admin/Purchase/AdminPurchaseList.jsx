@@ -1,9 +1,4 @@
-import React from 'react'
-
-function AdminPurchaseList() {
-  return (
-    <div>AdminPurchaseList</div>
-  )
+export default function AdminPurchaseList(){
+    return <>
+    </>
 }
-
-export default AdminPurchaseList

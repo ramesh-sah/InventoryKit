@@ -4,8 +4,8 @@ import axios from "axios";
 const axiosClient = axios.create({
     baseURL: "http://127.0.0.1:8000/api/", // Base URL for API
     headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        "Content-Type": "multipart/form-data", // Correct Content-Type for file upload
+        Accept: "application/json", // Optional: specify the response format
     },
 });
 

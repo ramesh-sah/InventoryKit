@@ -2,7 +2,7 @@
 
 import { extendTheme } from '@mui/material/styles';
 const Theme = extendTheme({
-    // colorSchemes: { light: true, dark: true },
+    colorSchemes: { light: true, dark: true },
     colorSchemeSelector: 'class',
     breakpoints: {
         values: {
@@ -13,5 +13,6 @@ const Theme = extendTheme({
             xl: 1536,
         },
     },
+    
 });
 export default Theme;
